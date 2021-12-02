@@ -154,6 +154,14 @@
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Trigger Touch",
+                    "type": "Button",
+                    "id": "9d77a1eb-0258-4ea3-90c0-8683b123e05f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -475,6 +483,17 @@
                     "action": "Translate Anchor",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "c0b6532f-e771-4236-bcd4-308c914e94bc",
+                    "path": "<XRInputV1::Oculus::OculusTouchControllerLeft>{LeftHand}/triggertouched",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Generic XR Controller",
+                    "action": "Trigger Touch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -583,6 +602,14 @@
                     "type": "Value",
                     "id": "6f7cf253-7062-443b-b10f-2be48a33f027",
                     "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Trigger Touch",
+                    "type": "Button",
+                    "id": "a9e54547-eeb2-48f2-a780-3b928981f678",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
                 }
@@ -895,6 +922,17 @@
                     "action": "Translate Anchor",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "4ead3482-60aa-4efa-974c-2a692ffbb3ef",
+                    "path": "<XRInputV1::Oculus::OculusTouchControllerRight>{RightHand}/triggertouched",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Generic XR Controller",
+                    "action": "Trigger Touch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
