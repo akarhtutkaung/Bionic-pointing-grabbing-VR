@@ -16,6 +16,7 @@ public class TelekinesisGrabber : Grabber
     // Start is called before the first frame update
     void Start()
     {
+
         laserPointer.enabled = false;
         lineRendererMaterial = laserPointer.material;
 
@@ -76,6 +77,9 @@ public class TelekinesisGrabber : Grabber
         {
             if (hit.collider.GetComponent<Grabbable>())
             {
+                laserPointer.enabled = false;
+                hit.collider.GetComponent<Grabbable>().zeroGravity(true);
+
                 // add the object to the select list
                 // first get the velocity > x
                 // second get the velocity reducing or to 0
