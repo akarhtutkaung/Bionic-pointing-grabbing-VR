@@ -30,16 +30,13 @@ public class Grabbable : MonoBehaviour
         if(grabbed == false){
             Vector3 pos = this.transform.position;
             if(move){
-                if(pos.x >= headset.transform.position.x){
-                    this.transform.position = calculate(1);
-                }
-                else if (pos.x < headset.transform.position.x){
-                    this.transform.position = calculate(2);
-                }
+                this.transform.position = calculate();
             }
             // float dist = Vector3.Distance(headset.transform.position, transform.position);
             // if(dist > 0 && dist < 1){
-            if(Mathf.Abs(transform.position.y - headset.transform.position.y) < 0.2 && Mathf.Abs(transform.position.z - headset.transform.position.z) < 0.6 && currentGrabber == null){
+            // if(Mathf.Abs(transform.position.y - headset.transform.position.y) < 0.2 && 
+            if(Mathf.Abs(transform.position.z - headset.transform.position.z) < 0.6 && currentGrabber == null){
+                Debug.Log("here");
                 float x = transform.position.x;
                 float y = transform.position.y;
                 float z = transform.position.z;
@@ -75,31 +72,93 @@ public class Grabbable : MonoBehaviour
         // }
     }
 
-    Vector3 calculate(int code){
-        // linear equation for XZ plane
+    Vector3 calculate(){
         
-        float mXZ = ((headset.transform.position.z + 0.5f) - this.transform.position.z)/(headset.transform.position.x - this.transform.position.x);
-        float bXZ = (headset.transform.position.z + 0.5f) - (mXZ * headset.transform.position.x);
-        float z;
-        if(code == 1){
-            z = mXZ * (this.transform.position.x - speed) + bXZ;
+        float thisX = this.transform.position.x;
+        float thisY = this.transform.position.y;
+        float thisZ = this.transform.position.z;
+        float headX = headset.transform.position.x;
+        float headY = headset.transform.position.y;
+        float headZ = headset.transform.position.z;
+        float newX, newY, newZ;
+
+        if(Mathf.Abs(thisX - headX) < 0.1){
+            if(Mathf.Abs(thisY - headY) < 0.1){
+                if(thisZ > headZ){
+                    return new Vector3 (thisX, thisY, thisZ - speed);
+                } else {
+                    return new Vector3 (thisX, thisY, thisZ + speed);
+                }
+            } else if (Mathf.Abs(thisZ - headZ) < 0.1){
+                if(thisY > headY){
+                    return new Vector3 (thisX, thisY - speed, thisZ);
+                } else {
+                    return new Vector3 (thisX, thisY + speed, thisZ);
+                }
+            } else {
+                float m = (headY - thisY)/(headZ - thisZ);
+                float b = headY - (m * headZ);
+                
+                if(thisZ > headZ){
+                    newZ = thisZ - speed;
+                } else {
+                    newZ = thisZ + speed;
+                }
+                newY = m * newZ + b;
+                return new Vector3 (thisX, newY, newZ);                
+            }
+        } else if(Mathf.Abs(thisY - headY) < 0.1){
+            Debug.Log("b");
+            if (thisZ == headZ){
+                if(thisX > headX){
+                    return new Vector3 (thisX - speed, thisY, thisZ);
+                } else {
+                    return new Vector3 (thisX + speed, thisY, thisZ);
+                }
+                
+            } else {
+                float m = (headZ - thisZ)/(headX - thisX);
+                float b = headZ - (m * headX);
+
+                if(thisZ > headZ){
+                    newZ = thisZ - speed;
+                } else {
+                    newZ = thisZ + speed;
+                }
+                newX = m * newZ + b;
+                return new Vector3 (newX, thisY, newZ);
+            }
+        } else if(Mathf.Abs(thisZ - headZ) < 0.1){
+            Debug.Log("c");
+            float m = (headY - thisY)/(headX - thisX);
+            float b = headY - (m * headX);
+
+            if(thisX > headX){
+                newX = thisX - speed;
+            } else {
+                newX = thisX + speed;
+            }
+            newY = m * newX + b;
+            return new Vector3 (newX, newY, thisZ);
         } else {
-            z = mXZ * (this.transform.position.x + speed) + bXZ;
+            // linear equation for XZ plane
+            float mXZ = (headZ - thisZ)/(headX - thisX);
+            float bXZ = headZ - (mXZ * headX);
+
+            if(thisX > headX){
+                newX = thisX - speed;
+            } else {
+                newX = thisX + speed;
+            }
+            newZ = mXZ * newX + bXZ;
+
+            // linear equation for YX plane
+            float mYZ = (headY - thisY)/(headZ - thisZ);
+            float bYZ = headY - (mYZ * headZ);
+            newY = mYZ * newZ + bYZ;
+
+            return new Vector3 (newX, newY, newZ);
         }
-
-        // linear equation for YX plane
-        float mYZ = (headset.transform.position.y - this.transform.position.y)/((headset.transform.position.z + 0.5f) - this.transform.position.z);
-        float bYZ = headset.transform.position.y - (mYZ * (headset.transform.position.z + 0.5f));
-        float y = mYZ * z + bYZ;
-
-        if(code == 1){
-            return new Vector3 (this.transform.position.x - speed, y, z);
-        } else if (code == 2){
-            return new Vector3 (this.transform.position.x + speed, y, z);
-        }
-
-        // error
-        return new Vector3 (0,0,0);
 
 
         // // linear equation for XZ plane
