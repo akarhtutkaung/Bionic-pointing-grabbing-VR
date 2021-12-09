@@ -12,11 +12,16 @@ public class TelekinesisGrabber : Grabber
     public InputActionProperty selectAction;
     public InputActionProperty grabAction;
 
+    Grabbable currentObject;
+    Grabbable grabbedObject;
+
     Material lineRendererMaterial;
+    GameObject selectObj;
     // Start is called before the first frame update
     void Start()
     {
-
+        grabbedObject = null;
+        currentObject = null;
         laserPointer.enabled = false;
         lineRendererMaterial = laserPointer.material;
 
@@ -76,7 +81,8 @@ public class TelekinesisGrabber : Grabber
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         {
             if (hit.collider.GetComponent<Grabbable>())
-            {
+            {   
+                selectObj = hit.collider.gameObject;
                 laserPointer.enabled = false;
                 hit.collider.GetComponent<Grabbable>().zeroGravity(true);
 
@@ -93,6 +99,10 @@ public class TelekinesisGrabber : Grabber
 
     void selectRelease(InputAction.CallbackContext context)
     {
+        if(grabbedObject == null){
+
+        selectObj.GetComponent<Grabbable>().zeroGravity(false);
+        }
         // enable the gravity of the object
         // disable the kinematic of the object
     }
@@ -107,11 +117,70 @@ public class TelekinesisGrabber : Grabber
         laserPointer.enabled = false;
     }
 
-    public override void Grab(InputAction.CallbackContext context){
-        // grab the item
+    // public override void Grab(InputAction.CallbackContext context){
+    //     // grab the item
+    // }
+
+    // public override void Release(InputAction.CallbackContext context){
+    //     // release the item
+    // }
+
+    public override void Grab(InputAction.CallbackContext context)
+    {
+        if (currentObject && grabbedObject == null)
+        {
+            if (currentObject.GetCurrentGrabber() != null)
+            {
+                currentObject.GetCurrentGrabber().Release(new InputAction.CallbackContext());
+            }
+
+            grabbedObject = currentObject;
+            grabbedObject.SetCurrentGrabber(this);
+
+            grabbedObject.GetComponent<Grabbable>().zeroGravity(false);
+
+            if (grabbedObject.GetComponent<Rigidbody>())
+            {
+                grabbedObject.GetComponent<Rigidbody>().isKinematic = true;
+                grabbedObject.GetComponent<Rigidbody>().useGravity = false;
+            }
+
+            grabbedObject.transform.parent = this.transform;
+        }
     }
 
-    public override void Release(InputAction.CallbackContext context){
-        // release the item
+    public override void Release(InputAction.CallbackContext context)
+    {
+        if (grabbedObject)
+        {
+            if (grabbedObject.GetComponent<Rigidbody>())
+            {
+                grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
+                grabbedObject.GetComponent<Rigidbody>().useGravity = true;
+            }
+
+            grabbedObject.SetCurrentGrabber(null);
+            grabbedObject.transform.parent = null;
+            grabbedObject = null;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (currentObject == null && other.GetComponent<Grabbable>())
+        {
+            currentObject = other.gameObject.GetComponent<Grabbable>();
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (currentObject)
+        {
+            if (other.GetComponent<Grabbable>() && currentObject.GetInstanceID() == other.GetComponent<Grabbable>().GetInstanceID())
+            {
+                currentObject = null;
+            }
+        }
     }
 }
