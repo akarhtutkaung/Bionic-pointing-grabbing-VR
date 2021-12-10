@@ -10,6 +10,7 @@ public class Grabbable : MonoBehaviour
     bool grabbed;
     float speed = 0.05f;
     float count = 0;
+    double diffThresh = 0.0000001;
 
     // Start is called before the first frame update
     void Start()
@@ -34,9 +35,11 @@ public class Grabbable : MonoBehaviour
             }
             // float dist = Vector3.Distance(headset.transform.position, transform.position);
             // if(dist > 0 && dist < 1){
-            // if(Mathf.Abs(transform.position.y - headset.transform.position.y) < 0.2 && 
-            if(Mathf.Abs(transform.position.z - headset.transform.position.z) < 0.6 && currentGrabber == null){
-                Debug.Log("here");
+            
+            if(Mathf.Abs(transform.position.x - headset.transform.position.x) < 0.8 && 
+            Mathf.Abs(transform.position.y - headset.transform.position.y) < 0.8 && 
+            Mathf.Abs(transform.position.z - headset.transform.position.z) < 0.8 && 
+            currentGrabber == null){
                 float x = transform.position.x;
                 float y = transform.position.y;
                 float z = transform.position.z;
@@ -82,20 +85,23 @@ public class Grabbable : MonoBehaviour
         float headZ = headset.transform.position.z;
         float newX, newY, newZ;
 
-        if(Mathf.Abs(thisX - headX) < 0.1){
-            if(Mathf.Abs(thisY - headY) < 0.1){
+        if(Mathf.Abs(thisX - headX) < diffThresh){
+            if(Mathf.Abs(thisY - headY) < diffThresh){
+                Debug.Log("00a");
                 if(thisZ > headZ){
                     return new Vector3 (thisX, thisY, thisZ - speed);
                 } else {
                     return new Vector3 (thisX, thisY, thisZ + speed);
                 }
-            } else if (Mathf.Abs(thisZ - headZ) < 0.1){
+            } else if (Mathf.Abs(thisZ - headZ) < diffThresh){
+                Debug.Log("0a0");
                 if(thisY > headY){
                     return new Vector3 (thisX, thisY - speed, thisZ);
                 } else {
                     return new Vector3 (thisX, thisY + speed, thisZ);
                 }
             } else {
+                Debug.Log("0aa");
                 float m = (headY - thisY)/(headZ - thisZ);
                 float b = headY - (m * headZ);
                 
@@ -107,29 +113,39 @@ public class Grabbable : MonoBehaviour
                 newY = m * newZ + b;
                 return new Vector3 (thisX, newY, newZ);                
             }
-        } else if(Mathf.Abs(thisY - headY) < 0.1){
-            Debug.Log("b");
-            if (thisZ == headZ){
+        } else if(Mathf.Abs(thisY - headY) < diffThresh){
+            if (Mathf.Abs(thisZ - headZ) < diffThresh){
+                Debug.Log("a00");
                 if(thisX > headX){
                     return new Vector3 (thisX - speed, thisY, thisZ);
                 } else {
                     return new Vector3 (thisX + speed, thisY, thisZ);
                 }
-                
             } else {
-                float m = (headZ - thisZ)/(headX - thisX);
-                float b = headZ - (m * headX);
+                Debug.Log("a0a");
+                // float m = (headZ - thisZ)/(headX - thisX);
+                // float b = headZ - (m * headX);
 
-                if(thisZ > headZ){
-                    newZ = thisZ - speed;
+                // if(thisZ > headZ){
+                //     newZ = thisZ - speed;
+                // } else {
+                //     newZ = thisZ + speed;
+                // }
+                // newX = m * newZ + b;
+                // return new Vector3 (newX, thisY, newZ);
+                float m = (headX - thisX)/(headZ - thisZ);
+                float b = headX - (m * headZ);
+
+                if(thisX > headX){
+                    newX = thisX - speed;
                 } else {
-                    newZ = thisZ + speed;
+                    newX = thisX + speed;
                 }
-                newX = m * newZ + b;
+                newZ = m * newX + b;
                 return new Vector3 (newX, thisY, newZ);
             }
-        } else if(Mathf.Abs(thisZ - headZ) < 0.1){
-            Debug.Log("c");
+        } else if(Mathf.Abs(thisZ - headZ) < diffThresh){
+            Debug.Log("aa0");
             float m = (headY - thisY)/(headX - thisX);
             float b = headY - (m * headX);
 
@@ -141,6 +157,7 @@ public class Grabbable : MonoBehaviour
             newY = m * newX + b;
             return new Vector3 (newX, newY, thisZ);
         } else {
+            Debug.Log("aaa");
             // linear equation for XZ plane
             float mXZ = (headZ - thisZ)/(headX - thisX);
             float bXZ = headZ - (mXZ * headX);

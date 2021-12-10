@@ -77,31 +77,36 @@ public class TelekinesisGrabber : Grabber
 
     void Select(InputAction.CallbackContext context)
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
-        {
-            if (hit.collider.GetComponent<Grabbable>())
-            {   
-                selectObj = hit.collider.gameObject;
-                laserPointer.enabled = false;
-                hit.collider.GetComponent<Grabbable>().zeroGravity(true);
+        if(grabbedObject == null){
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
+            {
+                if (hit.collider.GetComponent<Grabbable>())
+                {   
+                    selectObj = hit.collider.gameObject;
+                    laserPointer.enabled = false;
+                    hit.collider.GetComponent<Grabbable>().zeroGravity(true);
 
-                // add the object to the select list
-                // first get the velocity > x
-                // second get the velocity reducing or to 0
-                // then make the object come toward the eye
-                // activate the floating stance of the object
-                // disable the gravity of the object
-                // enable the kinematic of the object
+                    // add the object to the select list
+                    // first get the velocity > x
+                    // second get the velocity reducing or to 0
+                    // then make the object come toward the eye
+                    // activate the floating stance of the object
+                    // disable the gravity of the object
+                    // enable the kinematic of the object
+                }
             }
+        } else {
+            grabbedObject.SetCurrentGrabber(null);
+            grabbedObject.transform.parent = null;
+            grabbedObject = null;
         }
     }
 
     void selectRelease(InputAction.CallbackContext context)
     {
         if(grabbedObject == null){
-
-        selectObj.GetComponent<Grabbable>().zeroGravity(false);
+            selectObj.GetComponent<Grabbable>().zeroGravity(false);
         }
         // enable the gravity of the object
         // disable the kinematic of the object
@@ -109,7 +114,9 @@ public class TelekinesisGrabber : Grabber
 
     void TouchDown(InputAction.CallbackContext context)
     {
-        laserPointer.enabled = true;
+        if(grabbedObject == null){
+            laserPointer.enabled = true;
+        }
     }
 
     void TouchUp(InputAction.CallbackContext context)
