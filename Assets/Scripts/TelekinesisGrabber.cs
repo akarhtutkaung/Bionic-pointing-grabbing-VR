@@ -15,11 +15,23 @@ public class TelekinesisGrabber : Grabber
     Grabbable currentObject;
     Grabbable grabbedObject;
 
+    Grabbable grabbedObjGrabble;
+
     Material lineRendererMaterial;
     GameObject selectObj;
+
+    bool objSelected, objCanMove;
+    Vector3 prevPos;
+    int count = 0;
+
     // Start is called before the first frame update
     void Start()
     {
+        prevPos = transform.position;
+
+        objSelected = false;
+        objCanMove = false;
+
         grabbedObject = null;
         currentObject = null;
         laserPointer.enabled = false;
@@ -73,6 +85,19 @@ public class TelekinesisGrabber : Grabber
                 laserPointer.material = lineRendererMaterial;
             }
         }
+
+        if(objSelected){
+            // check the speed and movement
+            Debug.Log(Vector3.Distance(transform.position, prevPos));
+            if(Vector3.Distance(transform.position, prevPos) > 0.1f){
+                // objCanMove = true;
+                if(count == 0){
+                grabbedObjGrabble.zeroGravity(true);
+                count++;
+                }
+            }
+        }
+        
     }
 
     void Select(InputAction.CallbackContext context)
@@ -85,7 +110,14 @@ public class TelekinesisGrabber : Grabber
                 {   
                     selectObj = hit.collider.gameObject;
                     laserPointer.enabled = false;
-                    hit.collider.GetComponent<Grabbable>().zeroGravity(true);
+
+                    //if moving
+                    objSelected = true;
+                    prevPos = transform.position;
+                    grabbedObjGrabble = hit.collider.GetComponent<Grabbable>();
+                    // if(objCanMove){
+                    //     hit.collider.GetComponent<Grabbable>().zeroGravity(true);
+                    // }
 
                     // add the object to the select list
                     // first get the velocity > x
@@ -97,15 +129,17 @@ public class TelekinesisGrabber : Grabber
                 }
             }
         } else {
-            grabbedObject.SetCurrentGrabber(null);
-            grabbedObject.transform.parent = null;
-            grabbedObject = null;
+            // grabbedObject.SetCurrentGrabber(null);
+            // grabbedObject.transform.parent = null;
+            // grabbedObject = null;
         }
     }
 
     void selectRelease(InputAction.CallbackContext context)
     {
-        if(grabbedObject == null){
+        objSelected = false;
+        count = 0;
+        if(grabbedObject == null && grabbedObjGrabble.getCurrentGrabber() == null){
             selectObj.GetComponent<Grabbable>().zeroGravity(false);
         }
         // enable the gravity of the object
@@ -123,14 +157,6 @@ public class TelekinesisGrabber : Grabber
     {
         laserPointer.enabled = false;
     }
-
-    // public override void Grab(InputAction.CallbackContext context){
-    //     // grab the item
-    // }
-
-    // public override void Release(InputAction.CallbackContext context){
-    //     // release the item
-    // }
 
     public override void Grab(InputAction.CallbackContext context)
     {
@@ -164,6 +190,7 @@ public class TelekinesisGrabber : Grabber
             {
                 grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
                 grabbedObject.GetComponent<Rigidbody>().useGravity = true;
+                grabbedObject.GetComponent<Rigidbody>().AddForce(transform.forward * 300);
             }
 
             grabbedObject.SetCurrentGrabber(null);
