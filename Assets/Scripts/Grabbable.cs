@@ -3,21 +3,31 @@ using UnityEngine;
 public class Grabbable : MonoBehaviour
 {
 
-    private Grabber currentGrabber;
+    Grabber currentGrabber;
+    Grabber currentSelectedGrabber;
     GameObject headset;
     bool move;
     bool grabbed;
-    bool alreadyGrabbed;
-    bool hasMoved;
     bool canFloat;
+    bool headsetTriggered;
     float speed = 0.05f;
     float count = 0;
-    double diffThresh = 0.0000001;
+
+    float m_XZ, m_YZ, m_XY, b_XZ, b_YZ, b_XY;
+    bool firstMovement;
 
     // Start is called before the first frame update
     void Start()
     {
-        hasMoved = false;
+
+        this.GetComponent<Outline>().setColor(new Color(0/255f, 180/255f, 3/255f, 255/255f));
+        this.GetComponent<Outline>().setOutlineWidth(3);
+        this.GetComponent<Outline>().setMode(Outline.Mode.OutlineVisible);
+        this.GetComponent<Outline>().enabled = false;
+        
+        firstMovement = true;
+
+        headsetTriggered = false;
         move = false;
         canFloat = false;
         headset = GameObject.Find("Main Camera");
@@ -30,19 +40,17 @@ public class Grabbable : MonoBehaviour
         if(grabbed == false){
             Vector3 pos = this.transform.position;
             if(move){
-                if(!(Mathf.Abs(transform.position.x - headset.transform.position.x) < 0.5 && 
-                Mathf.Abs(transform.position.z - headset.transform.position.z) < 0.5)) {
+                if(firstMovement){
+                    formula();
+                    firstMovement = false;
+                }
+                if(headsetTriggered == false) {
                     this.transform.position = calculate();
-                    hasMoved = true;
+                } else {
+                    canFloat = true;
                 }
             }
-            if(Mathf.Abs(transform.position.x - headset.transform.position.x) < 0.5 && 
-            Mathf.Abs(transform.position.y - headset.transform.position.y) < 0.2 && 
-            Mathf.Abs(transform.position.z - headset.transform.position.z) < 0.5){
-                canFloat = true;
-            }
-            
-            if(canFloat && currentGrabber == null && alreadyGrabbed == false && hasMoved){
+            if(currentGrabber == null && canFloat){
                 move = false;
                 floatInAir();
             }
@@ -85,98 +93,73 @@ public class Grabbable : MonoBehaviour
         float headZ = headset.transform.position.z;
         float newX, newY, newZ;
 
-        if(Mathf.Abs(thisX - headX) < diffThresh){
-            if(Mathf.Abs(thisY - headY) < diffThresh){
-                Debug.Log("00a");
-                if(thisZ > headZ){
-                    return new Vector3 (thisX, thisY, thisZ - speed);
-                } else {
-                    return new Vector3 (thisX, thisY, thisZ + speed);
-                }
-            } else if (Mathf.Abs(thisZ - headZ) < diffThresh){
-                Debug.Log("0a0");
-                if(thisY > headY){
-                    return new Vector3 (thisX, thisY - speed, thisZ);
-                } else {
-                    return new Vector3 (thisX, thisY + speed, thisZ);
-                }
-            } else {
-                Debug.Log("0aa");
-                float m = (headY - thisY)/(headZ - thisZ);
-                float b = headY - (m * headZ);
-                
-                if(thisZ > headZ){
-                    newZ = thisZ - speed;
-                } else {
-                    newZ = thisZ + speed;
-                }
-                newY = m * newZ + b;
-                return new Vector3 (thisX, newY, newZ);                
-            }
-        } else if(Mathf.Abs(thisY - headY) < diffThresh){
-            if (Mathf.Abs(thisZ - headZ) < diffThresh){
-                Debug.Log("a00");
-                if(thisX > headX){
-                    return new Vector3 (thisX - speed, thisY, thisZ);
-                } else {
-                    return new Vector3 (thisX + speed, thisY, thisZ);
-                }
-            } else {
-                Debug.Log("a0a");
-                float m = (headX - thisX)/(headZ - thisZ);
-                float b = headX - (m * headZ);
-
-                if(thisX > headX){
-                    newX = thisX - speed;
-                } else {
-                    newX = thisX + speed;
-                }
-                newZ = m * newX + b;
-                return new Vector3 (newX, thisY, newZ);
-            }
-        } else if(Mathf.Abs(thisZ - headZ) < diffThresh){
-            Debug.Log("aa0");
-            float m = (headY - thisY)/(headX - thisX);
-            float b = headY - (m * headX);
-
+        if(Mathf.Abs(thisX - headX) > Mathf.Abs(thisY - headY) && Mathf.Abs(thisX - headX) > Mathf.Abs(thisZ - headZ)){
             if(thisX > headX){
                 newX = thisX - speed;
             } else {
                 newX = thisX + speed;
             }
-            newY = m * newX + b;
-            return new Vector3 (newX, newY, thisZ);
+            newZ = m_XZ * newX + b_XZ;
+            newY = m_XY * newX + b_XY;
+        } else if (Mathf.Abs(thisY - headY) > Mathf.Abs(thisX - headX) && Mathf.Abs(thisY - headY) > Mathf.Abs(thisZ - headZ)){
+            if(thisY > headY){
+                newY = thisY - speed;
+            } else {
+                newY = thisY + speed;
+            }
+            newX = (newY - b_XY) / m_XY;
+            newZ = (newY - b_YZ) / m_YZ;
         } else {
-            Debug.Log("aaa");
-            // linear equation for XZ plane
-            float mXZ = (headZ - thisZ)/(headX - thisX);
-            float bXZ = headZ - (mXZ * headX);
-
-            if(thisX > headX){
-                newX = thisX - speed;
+            if(thisZ > headZ){
+                newZ = thisZ - speed;
             } else {
-                newX = thisX + speed;
+                newZ = thisZ + speed;
             }
-            newZ = mXZ * newX + bXZ;
-
-            // linear equation for YX plane
-            float mYZ = (headY - thisY)/(headZ - thisZ);
-            float bYZ = headY - (mYZ * headZ);
-            newY = mYZ * newZ + bYZ;
-
-            return new Vector3 (newX, newY, newZ);
+            newX = (newZ - b_XZ) / m_XZ;
+            newY = m_YZ * newZ + b_YZ;
         }
+        return new Vector3 (newX, newY, newZ);
+    }
+
+    void formula() {
+        float thisX = this.transform.position.x;
+        float thisY = this.transform.position.y;
+        float thisZ = this.transform.position.z;
+        float headX = headset.transform.position.x;
+        float headY = headset.transform.position.y;
+        float headZ = headset.transform.position.z;
+        
+        m_XZ = (headZ - thisZ)/(headX - thisX);
+        b_XZ = headZ - (m_XZ * headX);
+
+        m_YZ = (headY - thisY)/(headZ - thisZ);
+        b_YZ = headY - (m_YZ * headZ);
+
+        m_XY = (headY - thisY)/(headX - thisX);
+        b_XY = headY - (m_XY * headX);
     }
 
     public void SetCurrentGrabber(Grabber grabber)
     {
-        alreadyGrabbed = true;
         currentGrabber = grabber;
+    }
+
+    public void SetCurrentSelectedGrabber(Grabber grabber){
+        currentSelectedGrabber = grabber;
+    }
+
+    public void setHeadsetTriggered(bool choice){
+        headsetTriggered = choice;
     }
 
     public Grabber GetCurrentGrabber()
     {
         return currentGrabber;
+    }
+
+    public Grabber GetCurrentSelectedGrabber()
+    {
+        return currentSelectedGrabber;
     }
 
     public void zeroGravity(bool choice){
@@ -185,15 +168,11 @@ public class Grabbable : MonoBehaviour
             this.gameObject.GetComponent<Rigidbody>().isKinematic = true;
             this.gameObject.GetComponent<Rigidbody>().useGravity = false;
         } else {
-            alreadyGrabbed = false;
-            hasMoved = false;
             move = false;
+            firstMovement = true;
+            canFloat = false;
             this.gameObject.GetComponent<Rigidbody>().isKinematic = false;
             this.gameObject.GetComponent<Rigidbody>().useGravity = true;
         }
-    }
-
-    public Grabber getCurrentGrabber(){
-        return currentGrabber;
     }
 }
