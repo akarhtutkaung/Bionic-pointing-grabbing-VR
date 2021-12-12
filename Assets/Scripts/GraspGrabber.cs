@@ -9,23 +9,13 @@ public class GraspGrabber : Grabber
 {
     public GameObject storageParent;
     public InputActionProperty grabAction;
-    public InputActionProperty Activation;
-    public InputActionProperty Activation_other;
 
     public GameObject righthandController;
-
-    List<UnityEngine.XR.InputDevice> inputDevices = new List<UnityEngine.XR.InputDevice>();
 
     Grabbable currentObject;
     Grabbable grabbedObject;
 
-    UnityEngine.XR.InputDevice head;
-    UnityEngine.XR.InputDevice LeftHand;
-    UnityEngine.XR.InputDevice RightHand;
 
-    Vector3 headPosition;
-    Vector3 LeftHandPosition;
-    Vector3 RightHandPosition;
 
     Vector3 storageScale = new Vector3(0.03f,0.03f,0.03f);
 
@@ -39,37 +29,11 @@ public class GraspGrabber : Grabber
         storageParent.SetActive(true);
         storageParent.transform.position = this.transform.position;
 
-        UnityEngine.XR.InputDevices.GetDevices(inputDevices);
         grabbedObject = null;
         currentObject = null;
 
         grabAction.action.performed += Grab;
         grabAction.action.canceled += Release;
-
-
-        foreach (var device in inputDevices)
-        {
-            if (device.isValid)
-            {
-                if(device.role.ToString() == "Generic")
-                {
-                    head = device;
-                    Debug.Log(head.name + " activated");
-
-                }
-                else if (device.role.ToString() == "LeftHanded")
-                {
-                    LeftHand = device;
-                    Debug.Log(LeftHand.name + " activated");
-
-                }
-                else if (device.role.ToString() == "RightHanded")
-                {
-                    RightHand = device;
-                    Debug.Log(RightHand.name + " activated");
-                }
-            }
-        }
 
         storageParent.GetComponent<MeshRenderer>().enabled = false;
     }
@@ -88,38 +52,8 @@ public class GraspGrabber : Grabber
 
     private void FixedUpdate()
     {
-        head.TryGetFeatureValue(UnityEngine.XR.CommonUsages.devicePosition, out headPosition);
-        LeftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.devicePosition, out LeftHandPosition);
-        RightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.devicePosition, out RightHandPosition);
 
         this.closestStorageScale();
-/*        if (activated && this.name == "controller_r")
-        {
-            this.transform.localPosition = (new Vector3(0,0,0.04f)) * growFunction((headPosition - RightHandPosition).magnitude);
-
-        }
-        else if (activated && this.name == "controller_l")
-        {
-            this.transform.localPosition = (new Vector3(0, 0, 0.04f)) * growFunction((headPosition - LeftHandPosition).magnitude);
-
-        }else if (grabbedObject && !activated)
-        {
-            Vector3 dir = (theOtherController.transform.position - this.transform.position);
-            if (this.name == "controller_r")
-            {
-                dir = (this.transform.position - theOtherController.transform.position);
-            }
-            float currentDis = dir.magnitude;
-            grabbedObject.transform.position = storageParent.transform.position;
-
-
-            Vector3 orthogonalVec = Vector3.Cross(this.transform.parent.forward, dir.normalized).normalized;
-            storageParent.transform.right = dir.normalized;
-            grabbedObject.transform.localScale = grabbedObject.getScale() * (currentDis / scaleDivider);
-
-        }*/
-        Debug.Log("selectedIndex: " + selectedIndex);
-
     }
 
     public override void Grab(InputAction.CallbackContext context)
@@ -239,7 +173,6 @@ public class GraspGrabber : Grabber
 
 
         }
-            //Debug.Log("selectedIndex: " + selectedIndex);
         
 
 
