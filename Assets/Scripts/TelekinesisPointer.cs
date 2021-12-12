@@ -78,8 +78,7 @@ public class TelekinesisPointer : Grabber
         if(selectedObj && newMove){
             // check the speed and movement
             Vector3 direction = transform.position - prevPos;
-            float angle = Vector2.Angle(new Vector2(headset.transform.forward.x, headset.transform.forward.z), new Vector2(direction.x, direction.z));
-            
+        
             if(Vector3.Distance(transform.position, prevPos) > 0.1f){
                 if(Vector3.Dot(direction, headset.transform.forward) < 0){
                     if(count == 0){
