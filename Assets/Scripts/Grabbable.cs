@@ -6,9 +6,11 @@ public class Grabbable : MonoBehaviour
     private Grabber currentGrabber;
     private Vector3 originalScale;
     private Vector3 Scale;
+    public bool stored;
     // Start is called before the first frame update
     void Start()
     {
+        stored = false;
         currentGrabber = null;
 
         if (this.GetComponent<Rigidbody>())

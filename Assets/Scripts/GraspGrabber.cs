@@ -142,6 +142,7 @@ public class GraspGrabber : Grabber
 
             grabbedObject.transform.parent = this.transform;
             grabbedObject.transform.localScale = grabbedObject.getScale();
+            grabbedObject.stored = false;
         }
     }
 
@@ -172,6 +173,7 @@ public class GraspGrabber : Grabber
 
                 grabbedObject.GetComponent<Rigidbody>().isKinematic = true;
                 grabbedObject.GetComponent<Rigidbody>().useGravity = false;
+                grabbedObject.stored = true;
             }
 
 
@@ -204,8 +206,9 @@ public class GraspGrabber : Grabber
     void closestStorageScale()
     {
            
-        float closestDis = 0.1f;
+        float closestDis = 0.2f;
         int closestIndex = -1;
+
         for (int i = 0; i < storageParent.transform.childCount; i++)
         {
             if (Vector3.Distance(righthandController.transform.position, storageParent.transform.GetChild(i).position) < closestDis)
