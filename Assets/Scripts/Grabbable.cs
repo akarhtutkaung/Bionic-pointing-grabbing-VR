@@ -10,7 +10,7 @@ public class Grabbable : MonoBehaviour
     bool grabbed;
     bool canFloat;
     bool headsetTriggered;
-    float speed = 0.05f;
+    float speed = 0.08f;
     float count = 0;
 
     float m_XZ, m_YZ, m_XY, b_XZ, b_YZ, b_XY;

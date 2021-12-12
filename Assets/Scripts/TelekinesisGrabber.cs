@@ -17,6 +17,8 @@ public class TelekinesisGrabber : Grabber
 
     Grabbable selectedObj;
 
+    GameObject headset;
+
     Material lineRendererMaterial;
     // GameObject selectObj;
 
@@ -28,6 +30,7 @@ public class TelekinesisGrabber : Grabber
     void Start()
     {
         prevPos = transform.position;
+        headset = GameObject.Find("Main Camera");
 
         grabbedObject = null;
         currentObject = null;
@@ -87,21 +90,34 @@ public class TelekinesisGrabber : Grabber
         if(selectedObj && newMove){
             // check the speed and movement
             Vector3 direction = transform.position - prevPos;
-            if((Vector3.Distance(transform.position, prevPos) > 0.1f) && 
-            ((direction.x < 0 && direction.y >= 0 && direction.z <0) || (direction.x >= 0 && direction.y >= 0 && direction.z <0)
-            || (direction.x < 0 && direction.y < 0 && direction.z <0) || (direction.x >= 0 && direction.y < 0 && direction.z <0))){
-                if(count == 0){
-                selectedObj.zeroGravity(true);
-                count++;
+            float angle = Vector2.Angle(new Vector2(headset.transform.forward.x, headset.transform.forward.z), new Vector2(direction.x, direction.z));
+            
+            if(Vector3.Distance(transform.position, prevPos) > 0.1f){
+                if(Vector3.Dot(direction, headset.transform.forward) < 0){
+                    if(count == 0){
+                    selectedObj.zeroGravity(true);
+                    count++;
+                    }
+                    selectedObj.GetComponent<Outline>().enabled = false;
+                    newMove = false;
+                } else {
+                    selectedObj.GetComponent<Rigidbody>().AddForce(direction * 10000);
+                    selectedObj.GetComponent<Outline>().enabled = false;
+                    if(selectedObj.GetCurrentSelectedGrabber() == this){
+                selectedObj.SetCurrentSelectedGrabber(null);
+            }
+                    selectedObj = null;
                 }
-                selectedObj.GetComponent<Outline>().enabled = false;
-                newMove = false;
-            } else if ((Vector3.Distance(transform.position, prevPos) > 0.1f)){
-                selectedObj.GetComponent<Rigidbody>().AddForce(direction * 10000);
-                selectedObj.GetComponent<Outline>().enabled = false;
-                selectedObj = null;
             }
         }
+
+        //     if((Vector3.Distance(transform.position, prevPos) > 0.1f) && 
+        //         Vector3.Dot(direction, headset.transform.forward) < 0){
+                
+        //     } else if ((Vector3.Distance(transform.position, prevPos) > 0.1f)){
+                
+        //     }
+        // }
     }
 
     void Select(InputAction.CallbackContext context)
@@ -127,10 +143,15 @@ public class TelekinesisGrabber : Grabber
     void selectRelease(InputAction.CallbackContext context)
     {
         count = 0;
-        if(grabbedObject == null && selectedObj && selectedObj.GetCurrentSelectedGrabber() == this){
-            if(selectedObj.GetCurrentGrabber() == null){
-                selectedObj.GetComponent<Grabbable>().zeroGravity(false);
-                
+        if(selectedObj){
+            selectedObj.GetComponent<Outline>().enabled = false;
+            if(grabbedObject == null){
+                    if(selectedObj.GetCurrentGrabber() == null){
+                        selectedObj.GetComponent<Grabbable>().zeroGravity(false);
+                    }
+                }
+            
+            if(selectedObj.GetCurrentSelectedGrabber() == this){
                 selectedObj.SetCurrentSelectedGrabber(null);
             }
         }
@@ -183,6 +204,10 @@ public class TelekinesisGrabber : Grabber
 
             grabbedObject.SetCurrentGrabber(null);
             grabbedObject.transform.parent = null;
+
+            if (grabbedObject.GetCurrentSelectedGrabber()) {
+                grabbedObject.SetCurrentSelectedGrabber(null);
+            }
             grabbedObject = null;
         }
     }
