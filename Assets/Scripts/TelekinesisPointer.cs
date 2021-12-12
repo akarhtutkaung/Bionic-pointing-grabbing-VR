@@ -107,7 +107,7 @@ public class TelekinesisPointer : Grabber
             {
                 if (hit.collider.GetComponent<Grabbable>())
                 {   
-                    if(hit.collider.GetComponent<Grabbable>().GetCurrentSelectedGrabber() == null){
+                    if(hit.collider.GetComponent<Grabbable>().GetCurrentSelectedGrabber() == null && hit.collider.GetComponent<Grabbable>().stored == false){
                         selectedObj = hit.collider.GetComponent<Grabbable>();
                         laserPointer.enabled = false;
                         prevPos = transform.position;

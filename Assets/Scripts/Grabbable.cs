@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class Grabbable : MonoBehaviour
 {
-
     Grabber currentGrabber;
     Grabber currentSelectedGrabber;
     GameObject headset;
+    private Vector3 originalScale;
+    private Vector3 Scale;
+    public bool stored;
     bool move;
     bool grabbed;
     bool canFloat;
@@ -25,14 +27,16 @@ public class Grabbable : MonoBehaviour
         this.GetComponent<Outline>().setMode(Outline.Mode.OutlineVisible);
         this.GetComponent<Outline>().enabled = false;
         
+        stored = false;
         firstMovement = true;
-
         headsetTriggered = false;
         move = false;
         canFloat = false;
         headset = GameObject.Find("Main Camera");
         currentGrabber = null;
         grabbed = false;
+
+        originalScale = this.transform.localScale;
     }
 
     void Update() 
@@ -174,5 +178,15 @@ public class Grabbable : MonoBehaviour
             this.gameObject.GetComponent<Rigidbody>().isKinematic = false;
             this.gameObject.GetComponent<Rigidbody>().useGravity = true;
         }
+    }
+
+    public Vector3 getScale()
+    {
+        return this.originalScale;
+    }
+
+    public void setScale(Vector3 scale)
+    {
+        this.Scale = scale;
     }
 }
