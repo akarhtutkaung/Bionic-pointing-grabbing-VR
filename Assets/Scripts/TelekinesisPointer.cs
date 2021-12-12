@@ -92,8 +92,8 @@ public class TelekinesisPointer : Grabber
                     selectedObj.GetComponent<Rigidbody>().AddForce(direction * 10000);
                     selectedObj.GetComponent<Outline>().enabled = false;
                     if(selectedObj.GetCurrentSelectedGrabber() == this){
-                selectedObj.SetCurrentSelectedGrabber(null);
-            }
+                        selectedObj.SetCurrentSelectedGrabber(null);
+                    }
                     selectedObj = null;
                 }
             }
