@@ -159,4 +159,8 @@ public class GraspGrabber : Grabber
             selectedIndex = -1;
         }
     }
+
+    public Grabbable GetCurrentGrabber(){
+        return grabbedObject;
+    }
 }

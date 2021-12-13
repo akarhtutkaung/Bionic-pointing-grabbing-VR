@@ -52,6 +52,7 @@ public class TelekinesisPointer : Grabber
     // Update is called once per frame
     void Update()
     {
+        grabbedObject = this.GetComponent<GraspGrabber>().GetCurrentGrabber();
         if (laserPointer.enabled)
         {
             RaycastHit hit;
@@ -97,6 +98,12 @@ public class TelekinesisPointer : Grabber
                 }
             }
         }
+
+        if(selectedObj){
+            if(selectedObj.GetCurrentGrabber()) {
+                selectedObj = null;
+            }
+        }
     }
 
     void Select(InputAction.CallbackContext context)
@@ -125,10 +132,10 @@ public class TelekinesisPointer : Grabber
         if(selectedObj){
             selectedObj.GetComponent<Outline>().enabled = false;
             if(grabbedObject == null){
-                    if(selectedObj.GetCurrentGrabber() == null){
-                        selectedObj.GetComponent<Grabbable>().zeroGravity(false);
-                    }
+                if(selectedObj.GetCurrentGrabber() == null){
+                    selectedObj.GetComponent<Grabbable>().zeroGravity(false);
                 }
+            }
             
             if(selectedObj.GetCurrentSelectedGrabber() == this){
                 selectedObj.SetCurrentSelectedGrabber(null);
