@@ -6,7 +6,7 @@ This project contains the implementation of telekinesis grabbing and storing obj
 #### Instructions
 ###### **Telekinesis grabbing**
 1)	Touch the select trigger button on the controller to activate the laser (laser is just a guiding component).
-2)	Point the laser to any objects and if the object is grabbable, the laser color will change to Blue.
+2)	Point the laser to any objects and if the object is grabbable, the laser color will change to Purplish.
 3)	Press and hold the select trigger button and move the controller
 - *To make the object come toward the user*: Move the controller toward you
 - *To make the object thrown away*: Move the controller outward you at the desire direction
