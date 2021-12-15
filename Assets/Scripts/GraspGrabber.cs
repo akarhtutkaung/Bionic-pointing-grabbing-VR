@@ -70,6 +70,11 @@ public class GraspGrabber : Grabber
                 currentObject.GetCurrentGrabber().Release(new InputAction.CallbackContext());
             }
 
+            if (selectedIndex != -1 && storageParent.transform.GetChild(selectedIndex).childCount != 0)
+            {
+                currentObject = storageParent.transform.GetChild(selectedIndex).transform.GetChild(0).GetComponent<Grabbable>();
+            }
+
             grabbedObject = currentObject;
             grabbedObject.SetCurrentGrabber(this);
 
