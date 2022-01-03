@@ -18,13 +18,9 @@ public class GraspGrabber : Grabber
 
     int selectedIndex = -1;
 
-    List<Vector3> trackedMov;
-    int counter = 0;
-
     // Start is called before the first frame update
     void Start()
     {
-        trackedMov = new List<Vector3>();
         storageParent.SetActive(true);
         // storageParent.transform.position = this.transform.position;
 
@@ -46,14 +42,7 @@ public class GraspGrabber : Grabber
     // Update is called once per frame
     void Update()
     {
-        if(grabbedObject) {
-            if(counter >= 10){
-                trackedMov.RemoveAt(0);
-            } else {
-                counter++;
-            }
-            trackedMov.Add(transform.position);
-        }
+
     }
 
     private void FixedUpdate()
@@ -68,11 +57,6 @@ public class GraspGrabber : Grabber
             if (currentObject.GetCurrentGrabber() != null)
             {
                 currentObject.GetCurrentGrabber().Release(new InputAction.CallbackContext());
-            }
-
-            if (selectedIndex != -1 && storageParent.transform.GetChild(selectedIndex).childCount != 0)
-            {
-                currentObject = storageParent.transform.GetChild(selectedIndex).transform.GetChild(0).GetComponent<Grabbable>();
             }
 
             grabbedObject = currentObject;
@@ -97,16 +81,7 @@ public class GraspGrabber : Grabber
         if (grabbedObject)
         {
             grabbedObject.zeroGravity(false);
-            int trackedMoveLastIndex = trackedMov.Count-1;
-            Vector3 direction = new Vector3(trackedMov[trackedMoveLastIndex].x - trackedMov[0].x, trackedMov[trackedMoveLastIndex].y - trackedMov[0].y, trackedMov[trackedMoveLastIndex].z - trackedMov[0].z);
-            grabbedObject.GetComponent<Rigidbody>().AddForce(direction * 300);
-
-            for(int i=0; i<trackedMoveLastIndex+1; i++){
-                trackedMov.RemoveAt(0);
-            }
-            counter = 0;
             
-
             grabbedObject.setScale(grabbedObject.transform.localScale);
             grabbedObject.SetCurrentGrabber(null);
             grabbedObject.transform.parent = null;
